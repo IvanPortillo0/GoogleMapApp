@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">GoogleMapApp</string>
+
+    <string-array name="mapa">
+        <item >Normal</item>
+        <item >Satelite</item>
+        <item >Terreno</item>
+        <item >Hibrido</item>
+    </string-array>
+
+    <string-array name="color">
+        <item >Blanco</item>
+        <item >Cafe</item>
+        <item >Negro</item>
+        <item >Amarillo</item>
+        <item >Naranja</item>
+        <item >Rojo</item>
+        <item >Verde</item>
+        <item >Azul</item>
+        <item >Violeta</item>
+        <item >Celeste</item>
+    </string-array>
+</resources>

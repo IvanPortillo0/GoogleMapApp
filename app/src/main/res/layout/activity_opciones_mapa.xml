@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".OpcionesMapa">
+
+    <TextView
+        android:id="@+id/tvTipoMapa"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Tipo de Mapa"
+        android:paddingTop="30dp"
+        android:paddingLeft="10sp"
+        android:textStyle="bold"
+        android:textSize="25dp"/>
+
+    <TextView
+        android:id="@+id/tvDescripcionMapa"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Permite cambiar la visibilidad"
+        android:paddingLeft="15sp"
+        android:paddingTop="70dp"/>
+    <TextView
+        android:id="@+id/tvDescripcionMapa2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="del mapa."
+        android:paddingLeft="15sp"
+        android:paddingTop="85dp"/>
+
+    <Spinner
+        android:id="@+id/spTipoMapa"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="54dp"
+        android:layout_marginLeft="240dp"
+        android:entries="@array/mapa"/>
+
+    <TextView
+        android:id="@+id/tvTamanioForma"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Tamaño Forma"
+        android:paddingTop="110dp"
+        android:paddingLeft="10sp"
+        android:textStyle="bold"
+        android:textSize="25dp"/>
+
+    <TextView
+        android:id="@+id/tvDespTamanioForma"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Permite cambiar el tamaño de"
+        android:paddingLeft="15sp"
+        android:paddingTop="150dp"/>
+
+    <TextView
+        android:id="@+id/tvDespTamanioForma2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="la forma insertada en metros."
+        android:paddingLeft="15sp"
+        android:paddingTop="165dp"/>
+
+    <EditText
+        android:id="@+id/txtTamaño"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="230dp"
+        android:layout_marginTop="120dp"
+        android:ems="8"
+        android:inputType="number"
+        android:text="3000" />
+
+    <TextView
+        android:id="@+id/tvColorForma"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Color de la Forma"
+        android:paddingTop="190dp"
+        android:paddingLeft="10sp"
+        android:textStyle="bold"
+        android:textSize="25dp"/>
+
+    <TextView
+        android:id="@+id/tvDespColorForma"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Permite cambiar el color"
+        android:paddingLeft="15sp"
+        android:paddingTop="225dp"/>
+
+    <TextView
+        android:id="@+id/tvDespColorForma2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="15sp"
+        android:paddingTop="240dp"
+        android:text="de la forma." />
+
+    <Spinner
+        android:id="@+id/spColorForma"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="220dp"
+        android:layout_marginLeft="240dp"
+        android:entries="@array/color"/>
+    <Button
+        android:id="@+id/btnGuardar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="149dp"
+        android:textStyle="bold"
+        android:textSize="25dp"
+        android:text="Guardar" />
+</RelativeLayout>
