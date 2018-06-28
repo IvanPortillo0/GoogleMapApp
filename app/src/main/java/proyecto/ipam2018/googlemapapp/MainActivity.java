@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //Asignar id de controles
         btnOpciones = (ImageButton) findViewById(R.id.btnOpciones);
         btnMarca = (ImageButton) findViewById(R.id.btnMarca);
@@ -251,50 +252,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
         Mapa.getUiSettings().setZoomControlsEnabled(true);
-    }
-
-
-    //este metodo no lo utilizo, lod eje por si lo iba a ocupar
-    private void addCirculo(LatLng point){
-        CircleOptions circleOptions = new CircleOptions();
-        circleOptions.center(point);
-        latCirculos.add(point.latitude + "");
-        lngCirculos.add(point.longitude + "");
-
-        if(color.equals("Blanco")){
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 100}));
-            Log.d("COLOR",color);
-        }else if(color.equals("Cafe")){
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{340, 32, 100}));
-            Log.d("COLOR",color);
-        } else if(color.equals("Negro")){
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 0}));
-            Log.d("COLOR",color);
-        } else if (color.equals("Amarillo")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{60, 100, 100}));
-            Log.d("COLOR",color);
-        } else if (color.equals("Naranja")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{47, 95, 100}));
-            Log.d("COLOR",color);
-        }else if (color.equals("Rojo")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 100, 100}));
-            Log.d("COLOR",color);
-        }else if (color.equals("Verde")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{120, 100, 100}));
-            Log.d("COLOR",color);
-        }else if (color.equals("Azul")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{240, 100, 100}));
-            Log.d("COLOR",color);
-        } else if (color.equals("Violeta")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{299, 55, 64}));
-            Log.d("COLOR",color);
-        }else if (color.equals("Celeste")) {
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{180, 50, 100}));
-            Log.d("COLOR",color);
-        }
-        circleOptions.radius(Integer.parseInt(tamanio));
-        circleOptions.strokeWidth(1);
-        Circle circulo = Mapa.addCircle(circleOptions);
     }
 
     public void addCirculo(LatLng point, String LocalColor, String LocalTamanio){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
