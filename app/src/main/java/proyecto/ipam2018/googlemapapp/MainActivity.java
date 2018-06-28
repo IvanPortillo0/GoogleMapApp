@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageButton btnOpciones;
     private ImageButton btnMarca;
     private ImageButton btnIrUes;
-    private Button btnPosicion;
+    private ImageButton btnGuardar;
+    private ImageButton btnPosicion;
     private ImageButton btnBorrar;
     private ImageButton btnBorrarCirculo;
     private Button btnIr;
@@ -60,12 +61,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Set<String> ColorCirculo;
     private Set<String> TamanioCirculo;
 
-    private boolean doit;
     private String tamanio;
     private String color;
     private String mapa;
-    private String tamaniolst;
-    private String colorlst;
     private String txtlat, txtlong;
     private SharedPreferences preferences;
 
@@ -79,7 +77,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnOpciones = (ImageButton) findViewById(R.id.btnOpciones);
         btnMarca = (ImageButton) findViewById(R.id.btnMarca);
         btnIrUes = (ImageButton) findViewById(R.id.btnIrUes);
-        btnPosicion = (Button) findViewById(R.id.btnPosicion);
+        btnGuardar = (ImageButton) findViewById(R.id.btnGuardar);
+        btnPosicion = (ImageButton) findViewById(R.id.btnPosicion);
         btnBorrar = (ImageButton) findViewById(R.id.btnBorrar);
         btnBorrarCirculo = (ImageButton) findViewById(R.id.btnBorrarCirculo);
         txtLatitud = (EditText) findViewById(R.id.txtLatitud);
@@ -131,13 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        btnIrUes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                irUES();
-            }
-        });
-
         btnMarca.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,7 +137,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        btnPosicion = (Button) findViewById(R.id.btnPosicion);
+        btnIrUes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                irUES();
+            }
+        });
+
+        btnGuardar.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+
+                CameraPosition camPosicion = Mapa.getCameraPosition();
+                LatLng coordenadas = camPosicion.target;
+                lat = coordenadas.latitude;
+                lng = coordenadas.longitude;
+                guardar();
+            }
+        });
+
         btnPosicion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,10 +166,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnBorrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick (View v){
-                //txtLatitud.setText("");
-                //txtLongitud.setText("");
-                obtenerPosicion();
-                guardar();
+                txtLatitud.setText("");
+                txtLongitud.setText("");
             }
         });
 
@@ -209,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapa.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             public void onMapLongClick(LatLng point) {
                 Toast.makeText(MainActivity.this, "Punto del Clic: " + point, Toast.LENGTH_LONG).show();
-                addCirculo(point,true);
+                addCirculo(point, color, tamanio);
             }
         });
 
@@ -223,9 +231,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.d("LONGITUD",lngCirculos.get(i));
                 Log.d("COLOR",ColorCirculos.get(i));
                 Log.d("TAMANIO",TamanioCirculos.get(i));
-                colorlst=ColorCirculos.get(i);
-                tamaniolst=TamanioCirculos.get(i);
-                addCirculo(new LatLng(Double.parseDouble( latCirculos.get(i)), Double.parseDouble(lngCirculos.get(i))),false);
+                addCirculo(new LatLng(Double.parseDouble( latCirculos.get(i)), Double.parseDouble(lngCirculos.get(i))), ColorCirculos.get(i), TamanioCirculos.get(i));
                 i++;
             }
         }
@@ -291,18 +297,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Circle circulo = Mapa.addCircle(circleOptions);
     }
 
-    public void addCirculo(LatLng point, Boolean AgregarCirculo){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
-        String LocalColor,LocalTamanio;
+    public void addCirculo(LatLng point, String LocalColor, String LocalTamanio){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
+
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(point);
 
-        if(AgregarCirculo){
-            LocalColor= color;
-            LocalTamanio = tamanio;
-        }else{
-            LocalColor = colorlst;
-            LocalTamanio = tamaniolst;
-        }
 
         if(LocalColor.equals("Blanco")){
             circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 100}));
@@ -354,8 +353,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
             SharedPreferences.Editor editor = preferences.edit();
-            editor.clear();
-            editor.commit();
             editor.putStringSet("latCirculo", latCirculo);
             editor.putStringSet("lngCirculo", lngCirculo);
             editor.putStringSet("ColorCirculo", ColorCirculo);

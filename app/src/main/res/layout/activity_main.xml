@@ -31,19 +31,24 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/minerva"/>
+            <ImageButton
+                android:id="@+id/btnGuardar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/guardar32" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/btnPosicion"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Posicion"/>
+                android:src="@drawable/posicion32"/>
 
             <ImageButton
                 android:id="@+id/btnBorrar"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/guardar32" />
+                android:src="@drawable/limpiar32" />
 
             <ImageButton
                 android:id="@+id/btnBorrarCirculo"
