@@ -39,10 +39,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     EditText txtLatitud;
     EditText txtLongitud;
     private ImageButton btnOpciones;
-    private Button btnMarca;
-    private Button btnIrUes;
+    private ImageButton btnMarca;
+    private ImageButton btnIrUes;
     private Button btnPosicion;
     private ImageButton btnBorrar;
+    private ImageButton btnBorrarCirculo;
     private Button btnIr;
 
     //Variables
@@ -76,15 +77,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //Asignar id de controles
         btnOpciones = (ImageButton) findViewById(R.id.btnOpciones);
-        btnMarca = (Button) findViewById(R.id.btnMarca);
-        btnIrUes = (Button) findViewById(R.id.btnIrUes);
+        btnMarca = (ImageButton) findViewById(R.id.btnMarca);
+        btnIrUes = (ImageButton) findViewById(R.id.btnIrUes);
         btnPosicion = (Button) findViewById(R.id.btnPosicion);
         btnBorrar = (ImageButton) findViewById(R.id.btnBorrar);
+        btnBorrarCirculo = (ImageButton) findViewById(R.id.btnBorrarCirculo);
         txtLatitud = (EditText) findViewById(R.id.txtLatitud);
         txtLongitud = (EditText) findViewById(R.id.txtLongitud);
         btnIr = (Button) findViewById(R.id.btnIr);
 
-        preferences = getSharedPreferences("map_preferences",MODE_PRIVATE);
+        preferences = getSharedPreferences("map_preferences", MODE_PRIVATE);
 
         latCirculos = new ArrayList<>();
         lngCirculos = new ArrayList<>();
@@ -99,23 +101,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        mapa = preferences.getString("tipo","Normal");
+        tamanio = preferences.getString("tamanio", "3000");
+        color = preferences.getString("color", "Negro");
 
+        lat = Double.parseDouble(preferences.getString("latitud", "13.970263"));
+        lng = Double.parseDouble(preferences.getString("longitud", "-89.574808"));
+
+        // Del preference paso los datos a las listas
         latCirculo = preferences.getStringSet("latCirculo", null);
         lngCirculo = preferences.getStringSet("lngCirculo", null);
         ColorCirculo = preferences.getStringSet("ColorCirculo", null);
         TamanioCirculo = preferences.getStringSet("TamanioCirculo", null);
 
-        mapa = preferences.getString("tipo","Normal");
-        tamanio = preferences.getString("tamanio", "3000");
-        color = preferences.getString("color", "Azul");
-
-        lat = Double.parseDouble(preferences.getString("latitud", "13.970263"));
-        lng = Double.parseDouble(preferences.getString("longitud", "-89.574808"));
-
-        if(latCirculos!= null){txtLatitud.setText("latCirculo");}
-        if(lngCirculos!= null){txtLongitud.setText("lngCirculo");}
-       // if(ColorCirculos!= null){txtLatitud.setText("ColorCirculo");}
-       // if(TamanioCirculos!= null){txtLongitud.setText("TamanioCirculo");}
         if (latCirculo != null && lngCirculo != null && ColorCirculo != null && TamanioCirculo != null){
             latCirculos = new ArrayList<String>(latCirculo);
             lngCirculos = new ArrayList<String>(lngCirculo);
@@ -162,11 +160,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //txtLongitud.setText("");
                 obtenerPosicion();
                 guardar();
+            }
+        });
 
-               // SharedPreferences.Editor editor = preferences.edit();
-               // editor.clear();
-               // preferences.edit().clear();
-               // editor.commit();
+        btnBorrarCirculo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View v){
+                borrarCircle();
             }
         });
 
@@ -209,10 +209,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapa.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             public void onMapLongClick(LatLng point) {
                 Toast.makeText(MainActivity.this, "Punto del Clic: " + point, Toast.LENGTH_LONG).show();
-                addCirculosGuardados(point,true);
+                addCirculo(point,true);
             }
         });
 
+        //añade los circulos al mapa
         if (latCirculos != null && lngCirculos != null && ColorCirculos != null && TamanioCirculos != null) {
             Log.d("COLOCARA PUNTOS","Deberia servir");
             int i = 0;
@@ -220,11 +221,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             while (i < tam){
                 Log.d("LATITUD",latCirculos.get(i));
                 Log.d("LONGITUD",lngCirculos.get(i));
-                Log.d("LONGITUD",ColorCirculos.get(i));
-                Log.d("LONGITUD",TamanioCirculos.get(i));
+                Log.d("COLOR",ColorCirculos.get(i));
+                Log.d("TAMANIO",TamanioCirculos.get(i));
                 colorlst=ColorCirculos.get(i);
                 tamaniolst=TamanioCirculos.get(i);
-                addCirculosGuardados(new LatLng(Double.parseDouble( latCirculos.get(i)), Double.parseDouble(lngCirculos.get(i))),false);
+                addCirculo(new LatLng(Double.parseDouble( latCirculos.get(i)), Double.parseDouble(lngCirculos.get(i))),false);
                 i++;
             }
         }
@@ -246,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapa.getUiSettings().setZoomControlsEnabled(true);
     }
 
+
+    //este metodo no lo utilizo, lod eje por si lo iba a ocupar
     private void addCirculo(LatLng point){
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(point);
@@ -256,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 100}));
             Log.d("COLOR",color);
         }else if(color.equals("Cafe")){
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{18, 77, 50}));
+            circleOptions.fillColor(Color.HSVToColor(75, new float[]{340, 32, 100}));
             Log.d("COLOR",color);
         } else if(color.equals("Negro")){
             circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 0}));
@@ -288,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Circle circulo = Mapa.addCircle(circleOptions);
     }
 
-    public void addCirculosGuardados(LatLng point, Boolean AgregarCirculo){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
+    public void addCirculo(LatLng point, Boolean AgregarCirculo){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
         String LocalColor,LocalTamanio;
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(point);
@@ -304,10 +307,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(LocalColor.equals("Blanco")){
             circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 100}));
             Log.d("COLOR",LocalColor);
-        }else if(color.equals("Cafe")){
-            circleOptions.fillColor(Color.HSVToColor(75, new float[]{18, 77, 50}));
-            Log.d("COLOR",LocalColor);
-        } else if(LocalColor.equals("Negro")){
+        }else if(LocalColor.equals("Negro")){
             circleOptions.fillColor(Color.HSVToColor(75, new float[]{0, 0, 0}));
             Log.d("COLOR",LocalColor);
         } else if (LocalColor.equals("Amarillo")) {
@@ -335,32 +335,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         circleOptions.radius(Integer.parseInt(LocalTamanio));
 
-        if(AgregarCirculo){
-            latCirculos.add(point.latitude + "");
-            lngCirculos.add(point.longitude + "");
-            ColorCirculos.add(LocalColor);
-            TamanioCirculos.add(LocalTamanio);
-        }
+        latCirculos.add(point.latitude + "");
+        lngCirculos.add(point.longitude + "");
+        ColorCirculos.add(LocalColor);
+        TamanioCirculos.add(LocalTamanio);
 
         circleOptions.strokeWidth(1);
         Circle circulo = Mapa.addCircle(circleOptions);
     }
 
     public void guardar(){
-        if (latCirculos.size() > 0){
+        if (latCirculos.size() > 0 && lngCirculos.size() > 0 && ColorCirculos.size() > 0 && TamanioCirculos.size() > 0){
             latCirculo = new HashSet<String>(latCirculos);
             lngCirculo = new HashSet<String>(lngCirculos);
             ColorCirculo = new HashSet<String>(ColorCirculos);
             TamanioCirculo = new HashSet<String>(TamanioCirculos);
+
+
+
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.clear();
+            editor.commit();
+            editor.putStringSet("latCirculo", latCirculo);
+            editor.putStringSet("lngCirculo", lngCirculo);
+            editor.putStringSet("ColorCirculo", ColorCirculo);
+            editor.putStringSet("TamanioCirculo", TamanioCirculo);
+            editor.putString("latitud", lat+"");
+            editor.putString("longitud", lng+"");
+            editor.commit();
+
+            Toast.makeText(this, "Guardado", Toast.LENGTH_SHORT).show();
         }
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putStringSet("latCirculo", latCirculo);
-        editor.putStringSet("lngCirculo", lngCirculo);
-        editor.putStringSet("ColorCirculo", ColorCirculo);
-        editor.putStringSet("TamanioCirculo", TamanioCirculo);
-        editor.putString("latitud", lat+"");
-        editor.putString("longitud", lng+"");
-        editor.commit();
     }
 
     @Override
@@ -398,8 +403,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     protected void onDestroy(){
-        obtenerPosicion();
-        guardar();
+        //obtenerPosicion();
+       // guardar();
         super.onDestroy();
     }
 
@@ -429,5 +434,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void moveCamara(){
         Mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),16));
+    }
+
+    public void borrarCircle(){
+        latCirculos = new ArrayList<>();
+        lngCirculos = new ArrayList<>();
+        ColorCirculos = new ArrayList<>();
+        TamanioCirculos = new ArrayList<>();
+
+        latCirculo = new HashSet<String>();
+        lngCirculo = new HashSet<String>();
+        ColorCirculo = new HashSet<String>();
+        TamanioCirculo = new HashSet<String>();
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.commit();
+        Toast.makeText(this,"Circulos Borrados", Toast.LENGTH_SHORT).show();
     }
 }

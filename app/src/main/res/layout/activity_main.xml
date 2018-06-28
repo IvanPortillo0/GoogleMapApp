@@ -21,18 +21,16 @@
                 android:layout_height="50dp"
                 android:src="@drawable/ajustes32" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/btnMarca"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Marca"/>
-            <Button
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/marcador32"/>
+            <ImageButton
                 android:id="@+id/btnIrUes"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Ir Ues"/>
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/minerva"/>
 
             <Button
                 android:id="@+id/btnPosicion"
@@ -45,13 +43,13 @@
                 android:id="@+id/btnBorrar"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/borrar32" />
+                android:src="@drawable/guardar32" />
 
             <ImageButton
                 android:id="@+id/btnBorrarCirculo"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/ajustes32" />
+                android:src="@drawable/circulo" />
 
         </LinearLayout>
 

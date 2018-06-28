@@ -46,24 +46,22 @@ public class OpcionesMapa extends AppCompatActivity {
 
         if (preferences.getString("color","").equals("Blanco")){
             spColor.setSelection(0);
-        }else if (preferences.getString("color","").equals("Cafe")){
-            spColor.setSelection(1);
         }else if (preferences.getString("color","").equals("Negro")){
-            spColor.setSelection(2);
+            spColor.setSelection(1);
         }else if (preferences.getString("color","").equals("Amarillo")){
-            spColor.setSelection(3);
+            spColor.setSelection(2);
         }else if (preferences.getString("color","").equals("Naranja")){
-            spColor.setSelection(4);
+            spColor.setSelection(3);
         } else if (preferences.getString("color","").equals("Rojo")){
-            spColor.setSelection(5);
+            spColor.setSelection(4);
         } else if (preferences.getString("color","").equals("Verde")){
-            spColor.setSelection(6);
+            spColor.setSelection(5);
         } else if (preferences.getString("color","").equals("Azul")){
-            spColor.setSelection(7);
+            spColor.setSelection(6);
         }else if (preferences.getString("color","").equals("Violeta")){
-            spColor.setSelection(8);
+            spColor.setSelection(7);
         }else if (preferences.getString("color","").equals("Celeste")){
-            spColor.setSelection(9);
+            spColor.setSelection(8);
         }
 
         txtTamanio.setText(preferences.getString("tamanio","3000"));

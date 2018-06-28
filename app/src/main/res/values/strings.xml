@@ -10,7 +10,6 @@
 
     <string-array name="color">
         <item >Blanco</item>
-        <item >Cafe</item>
         <item >Negro</item>
         <item >Amarillo</item>
         <item >Naranja</item>
