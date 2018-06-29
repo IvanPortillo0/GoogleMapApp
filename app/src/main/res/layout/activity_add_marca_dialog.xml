@@ -7,7 +7,6 @@
 
     <EditText
         android:id="@+id/txtAddTitulo"
-        style="@android:style/Widget.DeviceDefault.EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Titulo del Marcador"
@@ -15,12 +14,11 @@
 
     <EditText
         android:id="@+id/txtAddDescripcion"
-        style="@android:style/Widget.DeviceDefault.EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/txtAddTitulo"
         android:hint="Descripción"
-        android:textSize="24dp" />
+        android:textSize="18dp" />
 </RelativeLayout>
