@@ -36,7 +36,7 @@ public class OpcionesMapa extends AppCompatActivity {
 
         if (preferences.getString("tipo","").equals("Normal")){
             spMapa.setSelection(0);
-        } else if (preferences.getString("tipo","").equals("Satelital")){
+        } else if (preferences.getString("tipo","").equals("Satelite")){
             spMapa.setSelection(1);
         } else if (preferences.getString("tipo","").equals("Terreno")){
             spMapa.setSelection(2);
@@ -64,7 +64,7 @@ public class OpcionesMapa extends AppCompatActivity {
             spColor.setSelection(8);
         }
 
-        txtTamanio.setText(preferences.getString("tamanio","3000"));
+        txtTamanio.setText(preferences.getString("tamanio","2000"));
 
         btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override

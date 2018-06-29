@@ -25,17 +25,12 @@
                 android:id="@+id/btnMarca"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/marcador32"/>
+                android:src="@drawable/addmarca32"/>
             <ImageButton
                 android:id="@+id/btnIrUes"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/minerva"/>
-            <ImageButton
-                android:id="@+id/btnGuardar"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@drawable/guardar32" />
 
             <ImageButton
                 android:id="@+id/btnPosicion"
@@ -45,16 +40,22 @@
                 android:src="@drawable/posicion32"/>
 
             <ImageButton
-                android:id="@+id/btnBorrar"
+                android:id="@+id/btnBorrarMarca"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/limpiar32" />
+                android:src="@drawable/borrarmarca32" />
 
             <ImageButton
                 android:id="@+id/btnBorrarCirculo"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/circulo" />
+                android:src="@drawable/borarcirculo32" />
+
+            <ImageButton
+                android:id="@+id/btnLimpiar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/limpiar32" />
 
         </LinearLayout>
 
@@ -94,6 +95,7 @@
                     android:layout_height="wrap_content"
                     android:padding="0dp"
                     android:text="Longitud:"/>
+
                 <EditText
                     android:id="@+id/txtLongitud"
                     android:layout_width="wrap_content"

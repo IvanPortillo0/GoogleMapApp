@@ -10,21 +10,21 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class ConexionSQLitehelper extends SQLiteOpenHelper {
 
-    final String CREAR_TABLA_CIRCULOS="CREATE TABLE circulos (latitud DOUBLE, longitud DOUBLE, color TEXT, tamanio TEXt )";
-
     public ConexionSQLitehelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
     @Override
     public void onCreate(SQLiteDatabase dbMap) {
-        dbMap.execSQL(CREAR_TABLA_CIRCULOS);
+        dbMap.execSQL(UtilidadesSQL.CREAR_TABLA_CIRCULOS);
+        dbMap.execSQL(UtilidadesSQL.CREAR_TABLA_MARCAS);
     }
 
 
     @Override
     public void onUpgrade(SQLiteDatabase dbMap, int versionAntigua, int versionNueva) {
         dbMap.execSQL("DROP TABLE IF EXISTS circulos");
+        dbMap.execSQL("DROP TABLE IF EXISTS marcas");
         onCreate(dbMap);
     }
 }

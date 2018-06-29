@@ -1,10 +1,14 @@
 package proyecto.ipam2018.googlemapapp;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.preference.Preference;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,7 +24,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -28,10 +31,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, addTituloDialog.AddTituloDialogListener{
 
     private GoogleMap Mapa;
 
@@ -41,30 +42,30 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ImageButton btnOpciones;
     private ImageButton btnMarca;
     private ImageButton btnIrUes;
-    private ImageButton btnGuardar;
     private ImageButton btnPosicion;
-    private ImageButton btnBorrar;
+    private ImageButton btnBorrarMarca;
     private ImageButton btnBorrarCirculo;
+    private ImageButton btnLimpiar;
     private Button btnIr;
 
     //Variables
     private static final int MI_PERMISO = 1;
     private double lat = 0.0;
     private double lng = 0.0;
+
     private ArrayList<String> latCirculos;
     private ArrayList<String>lngCirculos;
     private ArrayList<String>ColorCirculos;
     private ArrayList<String>TamanioCirculos;
 
-    private Set<String> latCirculo;
-    private Set<String> lngCirculo;
-    private Set<String> ColorCirculo;
-    private Set<String> TamanioCirculo;
+    private ArrayList<String> latMarcas;
+    private ArrayList<String>lngMarcas;
+    private ArrayList<String>TituloMarcas;
+    private ArrayList<String>DespMarcas;
 
     private String tamanio;
     private String color;
-    private String mapa;
-    private String txtlat, txtlong;
+    private String mapatipo;
     private SharedPreferences preferences;
 
 
@@ -73,15 +74,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         //Asignar id de controles
         btnOpciones = (ImageButton) findViewById(R.id.btnOpciones);
         btnMarca = (ImageButton) findViewById(R.id.btnMarca);
         btnIrUes = (ImageButton) findViewById(R.id.btnIrUes);
-        btnGuardar = (ImageButton) findViewById(R.id.btnGuardar);
         btnPosicion = (ImageButton) findViewById(R.id.btnPosicion);
-        btnBorrar = (ImageButton) findViewById(R.id.btnBorrar);
+        btnBorrarMarca = (ImageButton) findViewById(R.id.btnBorrarMarca);
         btnBorrarCirculo = (ImageButton) findViewById(R.id.btnBorrarCirculo);
+        btnLimpiar = (ImageButton) findViewById(R.id.btnLimpiar);
         txtLatitud = (EditText) findViewById(R.id.txtLatitud);
         txtLongitud = (EditText) findViewById(R.id.txtLongitud);
         btnIr = (Button) findViewById(R.id.btnIr);
@@ -93,36 +93,26 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ColorCirculos = new ArrayList<>();
         TamanioCirculos = new ArrayList<>();
 
-        latCirculo = new HashSet<String>();
-        lngCirculo = new HashSet<String>();
-        ColorCirculo = new HashSet<String>();
-        TamanioCirculo = new HashSet<String>();
+        latMarcas = new ArrayList<>();
+        lngMarcas = new ArrayList<>();
+        TituloMarcas = new ArrayList<>();
+        DespMarcas = new ArrayList<>();
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mapa = preferences.getString("tipo","Normal");
-        tamanio = preferences.getString("tamanio", "3000");
-        color = preferences.getString("color", "Negro");
+        //Cargar Datos
+        mapatipo = preferences.getString("tipo","Normal");
+        tamanio = preferences.getString("tamanio", "2000");
+        color = preferences.getString("color", "Blanco");
 
         lat = Double.parseDouble(preferences.getString("latitud", "13.970263"));
         lng = Double.parseDouble(preferences.getString("longitud", "-89.574808"));
 
-        // Del preference paso los datos a las listas
-        latCirculo = preferences.getStringSet("latCirculo", null);
-        lngCirculo = preferences.getStringSet("lngCirculo", null);
-        ColorCirculo = preferences.getStringSet("ColorCirculo", null);
-        TamanioCirculo = preferences.getStringSet("TamanioCirculo", null);
+        txtLatitud.setText(preferences.getString("textLatitud",""));
+        txtLongitud.setText(preferences.getString("textLongitud",""));
 
-        if (latCirculo != null && lngCirculo != null && ColorCirculo != null && TamanioCirculo != null){
-            latCirculos = new ArrayList<String>(latCirculo);
-            lngCirculos = new ArrayList<String>(lngCirculo);
-            ColorCirculos = new ArrayList<String>(ColorCirculo);
-            TamanioCirculos= new ArrayList<String>(TamanioCirculo);
-        }
-        Log.d("TIPO DE MAPA",mapa);
-
-        //Botones
+        //Botones////////////////////////////////////////////////////
         btnOpciones.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,7 +124,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnMarca.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Mapa.addMarker(new MarkerOptions().position(new LatLng(13.970263, -89.574808)).title("Santa Ana: UES"));
+                //Mapa.addMarker(new MarkerOptions().position(new LatLng(13.970263, -89.574808)).title("Santa Ana: UES"));
+                if ((txtLatitud.getText().toString().isEmpty() || txtLatitud.getText().toString() == null)
+                        && (txtLongitud.getText().toString().isEmpty() || txtLongitud.getText().toString() == null)) {
+
+                    Toast.makeText(MainActivity.this, "Campos de texto vacios", Toast.LENGTH_LONG).show();
+
+                }else{
+                    addTituloDialog tituloDialog = new addTituloDialog();
+                    tituloDialog.show(getSupportFragmentManager(),"Añadir Titulo");
+                }
             }
         });
 
@@ -145,18 +144,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        btnGuardar.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-
-                CameraPosition camPosicion = Mapa.getCameraPosition();
-                LatLng coordenadas = camPosicion.target;
-                lat = coordenadas.latitude;
-                lng = coordenadas.longitude;
-                guardar();
-            }
-        });
-
         btnPosicion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,11 +151,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        btnBorrar.setOnClickListener(new View.OnClickListener() {
+        btnBorrarMarca.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick (View v){
-                txtLatitud.setText("");
-                txtLongitud.setText("");
+            public void onClick(View v){
+                borrarMarca();
             }
         });
 
@@ -176,6 +162,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick (View v){
                 borrarCircle();
+            }
+        });
+
+
+        btnLimpiar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick (View v){
+                txtLatitud.setText("");
+                txtLongitud.setText("");
             }
         });
 
@@ -199,6 +194,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MI_PERMISO);
     }
 
+    //Sirve para traer el dato(titulo) de la ventana emergente de agregar marca, (este metodo pertenece a addTituloDialog.java)
+    //Y añade las nuevas marcas a la BD
+    @Override
+    public void aplicarTexto(String titulo, String Desp) {
+        addMarca(new LatLng(Double.parseDouble(txtLatitud.getText().toString()), Double.parseDouble(txtLongitud.getText().toString())),titulo, Desp,true);
+    }
+
     //Metodo para el mapa --------------------------------------------------------------------------------------------------------------------------------------------------------
     @Override
     public void onMapReady(GoogleMap googleMap){
@@ -218,43 +220,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         Mapa.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             public void onMapLongClick(LatLng point) {
                 Toast.makeText(MainActivity.this, "Punto del Clic: " + point, Toast.LENGTH_LONG).show();
-                addCirculo(point, color, tamanio);
+                addCirculo(point, color, tamanio,true);
+
             }
         });
 
-        //añade los circulos al mapa
-        if (latCirculos != null && lngCirculos != null && ColorCirculos != null && TamanioCirculos != null) {
-            Log.d("COLOCARA PUNTOS","Deberia servir");
-            int i = 0;
-            int tam = latCirculos.size();
-            while (i < tam){
-                Log.d("LATITUD",latCirculos.get(i));
-                Log.d("LONGITUD",lngCirculos.get(i));
-                Log.d("COLOR",ColorCirculos.get(i));
-                Log.d("TAMANIO",TamanioCirculos.get(i));
-                addCirculo(new LatLng(Double.parseDouble( latCirculos.get(i)), Double.parseDouble(lngCirculos.get(i))), ColorCirculos.get(i), TamanioCirculos.get(i));
-                i++;
-            }
-        }
+        //Cargar circulos y marcas de la base de datos en el mapa
+        CargarCirculos();
+        CargarMarcas();
+
+        //mover camara a posicion guardada en el preference
         moveCamara();
     }
 
-    //Metodos utilizados en OnCreate y en onMapReady------------------------------------------------------------------------------------------------------------------------------------
+    //Metodos utilizados propios para la App (onCreate, OnPause, OnMapReady)/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void mapType(){
-        if (mapa.equals("Normal")) {
+        if (mapatipo.equals("Normal")) {
             Mapa.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        } else if (mapa.equals("Satelite")) {
+        } else if (mapatipo.equals("Satelite")) {
             Mapa.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-        } else if (mapa.equals("Terreno")) {
+        } else if (mapatipo.equals("Terreno")) {
             Mapa.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-        } else if (mapa.equals("Hibrido")) {
+        } else if (mapatipo.equals("Hibrido")) {
             Mapa.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         }
         Mapa.getUiSettings().setZoomControlsEnabled(true);
     }
 
-    public void addCirculo(LatLng point, String LocalColor, String LocalTamanio){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
+    public void addCirculo(LatLng point, String LocalColor, String LocalTamanio, Boolean AgregarCirculo){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
 
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(point);
@@ -291,35 +285,118 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         circleOptions.radius(Integer.parseInt(LocalTamanio));
 
-        latCirculos.add(point.latitude + "");
-        lngCirculos.add(point.longitude + "");
-        ColorCirculos.add(LocalColor);
-        TamanioCirculos.add(LocalTamanio);
+        if(AgregarCirculo){//Se añade a la BD si es agrega un marcador y no cuando cargue la app
+            ConexionSQLitehelper conx = new ConexionSQLitehelper(this,"bd_Mapa",null,1);
+            SQLiteDatabase db = conx.getWritableDatabase();
+
+            ContentValues values=new ContentValues();
+            values.put(UtilidadesSQL.CAMPO_LAT,point.latitude);
+            values.put(UtilidadesSQL.CAMPO_LONG,point.longitude);
+            values.put(UtilidadesSQL.CAMPO_COLOR,LocalColor);
+            values.put(UtilidadesSQL.CAMPO_TAMANIO,LocalTamanio);
+
+            Long resultante = db.insert(UtilidadesSQL.TABLA_CIRCULOS,null,values);
+            Toast.makeText(getApplicationContext(),"N° Registro: "+resultante,Toast.LENGTH_SHORT).show();
+            db.close();
+        }
 
         circleOptions.strokeWidth(1);
-        Circle circulo = Mapa.addCircle(circleOptions);
+        Mapa.addCircle(circleOptions);
     }
 
-    public void guardar(){
-        if (latCirculos.size() > 0 && lngCirculos.size() > 0 && ColorCirculos.size() > 0 && TamanioCirculos.size() > 0){
-            latCirculo = new HashSet<String>(latCirculos);
-            lngCirculo = new HashSet<String>(lngCirculos);
-            ColorCirculo = new HashSet<String>(ColorCirculos);
-            TamanioCirculo = new HashSet<String>(TamanioCirculos);
+    public void addMarca(LatLng point, String LocalTitulo,String LocalDesp, Boolean AgregarMarca){
 
+        if(AgregarMarca){//Se añade a la BD si es agrega un marcador y no cuando cargue la app
+            ConexionSQLitehelper conx = new ConexionSQLitehelper(this,"bd_Mapa",null,1);
+            SQLiteDatabase db = conx.getWritableDatabase();
 
+            ContentValues values=new ContentValues();
+            values.put(UtilidadesSQL.CAMPO_MAR_LAT,point.latitude);
+            values.put(UtilidadesSQL.CAMPO_MAR_LONG,point.longitude);
+            values.put(UtilidadesSQL.CAMPO_MAR_TITULO,LocalTitulo);
+            values.put(UtilidadesSQL.CAMPO_MAR_DESPCRIPCION,LocalDesp);
 
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putStringSet("latCirculo", latCirculo);
-            editor.putStringSet("lngCirculo", lngCirculo);
-            editor.putStringSet("ColorCirculo", ColorCirculo);
-            editor.putStringSet("TamanioCirculo", TamanioCirculo);
-            editor.putString("latitud", lat+"");
-            editor.putString("longitud", lng+"");
-            editor.commit();
-
-            Toast.makeText(this, "Guardado", Toast.LENGTH_SHORT).show();
+            Long resultante = db.insert(UtilidadesSQL.TABLA_MARCAS,null,values);
+            Toast.makeText(getApplicationContext(),"N° Registro: "+resultante,Toast.LENGTH_SHORT).show();
+            db.close();
         }
+
+
+        Mapa.addMarker(new MarkerOptions().position(new LatLng(point.latitude, point.longitude)).title(LocalTitulo).snippet(LocalDesp));
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public void guardar(){
+
+        CameraPosition camPosicion = Mapa.getCameraPosition();
+        LatLng coordenadas = camPosicion.target;
+        lat = coordenadas.latitude;
+        lng = coordenadas.longitude;
+
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("latitud", lat+"");
+        editor.putString("longitud", lng+"");
+        editor.putString("textLatitud", txtLatitud.getText().toString());
+        editor.putString("textLongitud", txtLongitud.getText().toString());
+        editor.commit();
+    }
+
+    public void CargarCirculos(){
+        //Este Fragmento es para añadir los circulos a las listas
+        ConexionSQLitehelper conx = new ConexionSQLitehelper(this,"bd_Mapa",null,1);
+        SQLiteDatabase db = conx.getWritableDatabase();
+        Cursor myCursor;
+        myCursor = db.rawQuery("SELECT * FROM circulos", null);
+        while(myCursor.moveToNext()) {
+            latCirculos.add(""+myCursor.getDouble(0));
+            lngCirculos.add(""+myCursor.getDouble(1));
+            ColorCirculos.add(myCursor.getString(2));
+            TamanioCirculos.add(myCursor.getString(3));
+        }
+        myCursor.close();
+
+        //añadir Circulos al mapa
+        if (latCirculos != null && lngCirculos != null && ColorCirculos != null && TamanioCirculos != null) {
+            Log.d("COLOCARA PUNTOS","Deberia servir");
+
+            for (int i = 0; i < latCirculos.size(); i++) {
+                Log.d("LATITUD", latCirculos.get(i));
+                Log.d("LONGITUD", lngCirculos.get(i));
+                Log.d("COLOR", ColorCirculos.get(i));
+                Log.d("TAMANIO", TamanioCirculos.get(i));
+                addCirculo(new LatLng(Double.parseDouble(latCirculos.get(i)), Double.parseDouble(lngCirculos.get(i))), ColorCirculos.get(i), TamanioCirculos.get(i), false);
+            }
+        }
+        db.close();
+    }
+
+    public void CargarMarcas(){
+        //Este Fragmento es para añadir las marcas a las listas
+        ConexionSQLitehelper conx = new ConexionSQLitehelper(this,"bd_Mapa",null,1);
+        SQLiteDatabase db = conx.getWritableDatabase();
+        Cursor myCursor;
+        myCursor = db.rawQuery("SELECT * FROM marcas", null);
+        while(myCursor.moveToNext()) {
+            latMarcas.add(""+myCursor.getDouble(0));
+            lngMarcas.add(""+myCursor.getDouble(1));
+            TituloMarcas.add(myCursor.getString(2));
+            DespMarcas.add(myCursor.getString(3));
+        }
+        myCursor.close();
+
+        //añadir Marcas al mapa
+        if (latMarcas != null && lngMarcas != null && TituloMarcas != null && DespMarcas != null) {
+            Log.d("COLOCARA Marcas","Si entro a if");
+
+            for (int i = 0; i < latMarcas.size(); i++) {
+                Log.d("LATITUD", latMarcas.get(i));
+                Log.d("LONGITUD", lngMarcas.get(i));
+                Log.d("TITULO", TituloMarcas.get(i));
+                Log.d("DESCRIPCION", DespMarcas.get(i));
+                addMarca(new LatLng(Double.parseDouble(latMarcas.get(i)), Double.parseDouble(lngMarcas.get(i))), TituloMarcas.get(i),DespMarcas.get(i), false);
+            }
+        }
+        db.close();
     }
 
     @Override
@@ -328,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                mapa = data.getStringExtra("tipo");
+                mapatipo = data.getStringExtra("tipo");
                 tamanio = data.getStringExtra("tamanio");
                 color = data.getStringExtra("color");
                 mapType();
@@ -356,19 +433,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    protected void onDestroy(){
-        //obtenerPosicion();
-       // guardar();
-        super.onDestroy();
+    protected void onPause() {
+        guardar();
+
+        super.onPause();
     }
-
-
 
     //Metodos de Botones---------------------------------------------------------------------------------------------------------------------------------
 
     private void irUES() {
         lat=13.970263;
         lng=-89.574808;
+        txtLatitud.setText("13.970263");
+        txtLongitud.setText("-89.574808");
         CameraUpdate camUpd1 = CameraUpdateFactory .newLatLngZoom(new LatLng(lat, lng), 16);
         Mapa.moveCamera(camUpd1);
     }
@@ -378,6 +455,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng coordenadas = camPosicion.target;
         lat = coordenadas.latitude;
         lng = coordenadas.longitude;
+
+        txtLatitud.setText("" + lat);
+        txtLongitud.setText("" + lng);
         Toast.makeText(this, "Lat: " + lat + " | Long: " + lng, Toast.LENGTH_SHORT).show();
     }
 
@@ -391,18 +471,38 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void borrarCircle(){
-        latCirculos = new ArrayList<>();
-        lngCirculos = new ArrayList<>();
-        ColorCirculos = new ArrayList<>();
-        TamanioCirculos = new ArrayList<>();
+        ConexionSQLitehelper conx = new ConexionSQLitehelper(this,"bd_Mapa",null,1);
+        SQLiteDatabase db = conx.getWritableDatabase();
 
-        latCirculo = new HashSet<String>();
-        lngCirculo = new HashSet<String>();
-        ColorCirculo = new HashSet<String>();
-        TamanioCirculo = new HashSet<String>();
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.commit();
-        Toast.makeText(this,"Circulos Borrados", Toast.LENGTH_SHORT).show();
+        String Delete="DELETE FROM circulos;";
+
+        db.execSQL(Delete);
+        db.close();
+        Toast.makeText(MainActivity.this, "Circulos Eliminados", Toast.LENGTH_SHORT).show();
+        Mapa.clear();
+        latCirculos.clear();
+        lngCirculos.clear();
+        ColorCirculos.clear();
+        TamanioCirculos.clear();
+        CargarMarcas();
     }
+
+    public void borrarMarca(){
+        ConexionSQLitehelper conx = new ConexionSQLitehelper(this,"bd_Mapa",null,1);
+        SQLiteDatabase db = conx.getWritableDatabase();
+
+        String Delete="DELETE FROM marcas;";
+
+        db.execSQL(Delete);
+        db.close();
+        Toast.makeText(MainActivity.this, "Marcas Eliminadas", Toast.LENGTH_SHORT).show();
+        Mapa.clear();
+        latMarcas.clear();
+        lngMarcas.clear();
+        TituloMarcas.clear();
+        DespMarcas.clear();
+
+        CargarCirculos();
+    }
+
 }
