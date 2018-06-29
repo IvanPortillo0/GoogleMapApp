@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String tamanio;
     private String color;
     private String mapatipo;
+    private float zoom;
     private SharedPreferences preferences;
 
 
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         tamanio = preferences.getString("tamanio", "2000");
         color = preferences.getString("color", "Blanco");
 
+        zoom = Float.parseFloat(preferences.getString("zoom","16.0"));
         lat = Double.parseDouble(preferences.getString("latitud", "13.970263"));
         lng = Double.parseDouble(preferences.getString("longitud", "-89.574808"));
 
@@ -246,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
         Mapa.getUiSettings().setZoomControlsEnabled(true);
+
     }
 
     public void addCirculo(LatLng point, String LocalColor, String LocalTamanio, Boolean AgregarCirculo){ // AgregarCirculo: cuando el metedo se recorra, saber si se usa para cargar datos guardados(false) o agregar nuevos datos (true)
@@ -338,6 +341,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         editor.putString("longitud", lng+"");
         editor.putString("textLatitud", txtLatitud.getText().toString());
         editor.putString("textLongitud", txtLongitud.getText().toString());
+        editor.putString("zoom", camPosicion.zoom+"");
         editor.commit();
     }
 
@@ -467,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void moveCamara(){
-        Mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),16));
+        Mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng), zoom));
     }
 
     public void borrarCircle(){
